@@ -56,12 +56,12 @@ class CompanyInfoDBHandler {
   }
 
   // Deleting data
-  Future<void> deleteData(CompanyInfo model) async {
+  Future<void> deleteData(int id) async {
     final db = await database;
     await db.delete(
       databaseName,
       where: "id = ?",
-      whereArgs: [model.id],
+      whereArgs: [id],
     );
   }
 }

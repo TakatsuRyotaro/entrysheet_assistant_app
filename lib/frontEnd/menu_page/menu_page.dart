@@ -1,11 +1,11 @@
 import 'package:entrysheet_assistant_app/backEnd/handlers/companyinfo_db_handler.dart';
 import 'package:entrysheet_assistant_app/constant.dart';
 import 'package:entrysheet_assistant_app/frontEnd/assist_files/colors.dart';
+import 'package:entrysheet_assistant_app/frontEnd/assist_files/dialogs.dart';
 import 'package:entrysheet_assistant_app/frontEnd/assist_files/ui_components.dart';
 import 'package:entrysheet_assistant_app/frontEnd/menu_page/add_company_dialog.dart';
 import 'package:flutter/material.dart';
 
-import 'add_company_dialog.dart';
 
 class MenuPage extends StatefulWidget{
   @override
@@ -71,17 +71,26 @@ Widget companyLists() {
     String stateID = CompanyStateID().indexToCompanyStateID(index);
     String stateName = CompanyStateID().indexToCompanyStateName(index);
     Color statusChipColor = Colors.grey;
+    List<Map> targetList = [];
+    for(int i = 0; i < data.length; i++){
+      if(data.elementAt(i)["state"] == stateID){
+        targetList.add(data.elementAt(index));
+      }
+    }
     switch (index){
       case 0: statusChipColor = Colors.green;
       case 1: statusChipColor = DEEP_BLUE;
       case 2: statusChipColor = DEEP_BLUE;
       case 3: statusChipColor = Colors.redAccent;
       case 4: statusChipColor = Colors.redAccent;
-
+    }
+    Widget statusIndex = const SizedBox();
+    if(targetList.isNotEmpty){
+      statusIndex = statusChip(statusName:stateName,bgColor: statusChipColor);
     }
     return Column(children:[
       Row(children:[
-        statusChip(statusName:stateName,bgColor: statusChipColor),
+        statusIndex,
         const Spacer()
       ]),
       ListView.builder(itemBuilder: (context,index){
@@ -102,22 +111,29 @@ Widget companyLists() {
     return GestureDetector(
       onTap:(){},
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical:3),
+        margin: const EdgeInsets.symmetric(vertical:5,horizontal:0),
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: Colors.white12,
+          color: SILVER,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: []
+          boxShadow: [
+            // BoxShadow(
+            //   color: Colors.black.withOpacity(0.2), // 影の色
+            //   spreadRadius: 1, // 影の広がりの範囲
+            //   blurRadius: 1, // ぼかしの範囲
+            //   offset:const Offset(0, 1), // 影の位置（水平, 垂直）
+            // ),
+          ],
         ),
         child: Row(
          children:[
            Container(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color:Colors.grey,
               borderRadius: BorderRadius.circular(10),
             ),
-            child:const Icon(Icons.work,size:30,color: Colors.white,)
+            child:const Icon(Icons.work,size:25,color: Colors.white,)
           ), 
           const SizedBox(width:10),
           Expanded(child:
@@ -128,15 +144,22 @@ Widget companyLists() {
                 style:const TextStyle(
                 fontWeight: FontWeight.bold,
                 overflow: TextOverflow.clip,
-                fontSize:20)),
+                fontSize:15)),
               Row(children:[
                 GestureDetector(
+                  onTap:()async{
+                    await showDeleteConfirmationDialog(context,
+                      ()async {
+                        await CompanyInfoDBHandler().deleteData(data["id"]);
+                      },setState);
+                      setState((){});
+                  },
                   child:const Icon(Icons.delete,color:Colors.grey),),
                 const SizedBox(width:5),
                 GestureDetector(
                   onTap: () async{
                     await showAddCompanyDialog(
-                      context,setState,isEdit:true,companyName:data["companyName"]);
+                      context,setState,isEdit:true,data:data);
                   },
                   child:const Icon(Icons.edit,color:Colors.grey),),
               ])

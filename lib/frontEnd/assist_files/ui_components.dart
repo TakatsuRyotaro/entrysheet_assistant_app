@@ -29,14 +29,28 @@ Widget addButton(
   return GestureDetector(
     onTap:onTap,
     child:Container(
-      padding:const EdgeInsets.all(7.5),
+      padding:const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color:bgColor,
+        gradient: linarGradientDecotation(bgColor,0.5),
         shape: BoxShape.circle,
       ),
-      child:const Icon(Icons.add,color:Colors.white)
-    )
+      child:const Icon(
+        Icons.add_rounded,
+        color:Colors.white,
+        size: 25,
+    ))
   );
 }
 void defaultOnTap(){}
 
+Gradient linarGradientDecotation(Color target,double amount){
+  return  LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      lightenColor(target,amount),
+      target,
+      target,
+    ],
+  );
+}

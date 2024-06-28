@@ -22,6 +22,21 @@ class CompanyStateID{
       return companyStateID;
   }
 
+  int companyStateIDToIndex(String companyStateID){
+      int index = 0;
+      List idList = [
+        CompanyStateID().watching,
+        CompanyStateID().inturn_selection,
+        CompanyStateID().inturn_join,
+        CompanyStateID().main_selection,
+        CompanyStateID().got_job,
+        CompanyStateID().prayed,
+        CompanyStateID().other,
+      ];
+      index = idList.indexOf(companyStateID);
+      return index;
+  }
+
 
   String indexToCompanyStateName(index){
       String companyStateID = "";

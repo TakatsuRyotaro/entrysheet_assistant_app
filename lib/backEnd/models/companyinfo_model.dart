@@ -1,5 +1,3 @@
-
-
 class  CompanyInfo{
   final int id;
   final String companyName;

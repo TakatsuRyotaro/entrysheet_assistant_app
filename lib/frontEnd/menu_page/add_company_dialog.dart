@@ -9,13 +9,20 @@ Future<void> showAddCompanyDialog(
   BuildContext context,
   StateSetter setosute,
   {int selectedIndex = 0,
-   String companyName = "",
+   Map<String,dynamic> data =const {},
    bool isEdit = false,
    }) async{
-  TextEditingController companyNameController = TextEditingController(text:companyName);
-  String dialogTitle = "会社情報を追加";
-  if(isEdit){dialogTitle = "会社情報を編集";}
 
+  String companyName = "";
+  String dialogTitle = "会社情報を追加";
+
+  if(isEdit){
+    dialogTitle = "会社情報を編集";
+    companyName = data["companyName"];
+    selectedIndex = CompanyStateID().companyStateIDToIndex(data["state"]);
+  } 
+
+TextEditingController companyNameController = TextEditingController(text:companyName);
 
   List<String> items = [
     '検討中',
@@ -78,10 +85,13 @@ Future<void> showAddCompanyDialog(
                 );
                 setosute((){});
               }else{
-
+                await CompanyInfoDBHandler().updateData(
+                  CompanyInfo(
+                    id: data["id"],
+                    companyName: companyNameController.text,
+                    state: companyStateID));
+                setosute((){});
               }
-              print(companyNameController.text);
-              print(companyStateID);
               Navigator.pop(context);},
             child:const Text("登録"),
           ),
