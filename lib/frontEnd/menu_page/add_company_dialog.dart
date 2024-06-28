@@ -1,6 +1,7 @@
 
 import 'package:entrysheet_assistant_app/backEnd/handlers/companyinfo_db_handler.dart';
 import 'package:entrysheet_assistant_app/backEnd/models/companyinfo_model.dart';
+import 'package:entrysheet_assistant_app/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -28,15 +29,7 @@ Future<void> showAddCompanyDialog(
 
   String companyStateID = "other";
   void returnCompanyStateID(){
-    switch (selectedIndex){
-      case 0: companyStateID = "watching";
-      case 1: companyStateID = "inturn_selection";
-      case 2: companyStateID = "inturn_join";
-      case 3: companyStateID = "main_selection";
-      case 4: companyStateID = "got_job";
-      case 5: companyStateID = "prayed";
-      default: companyStateID = "other";
-    }
+    companyStateID = CompanyStateID().indexToCompanyStateID(selectedIndex);
   }
 
 

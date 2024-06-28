@@ -1,8 +1,11 @@
 import 'package:entrysheet_assistant_app/backEnd/handlers/companyinfo_db_handler.dart';
+import 'package:entrysheet_assistant_app/constant.dart';
 import 'package:entrysheet_assistant_app/frontEnd/assist_files/colors.dart';
 import 'package:entrysheet_assistant_app/frontEnd/assist_files/ui_components.dart';
 import 'package:entrysheet_assistant_app/frontEnd/menu_page/add_company_dialog.dart';
 import 'package:flutter/material.dart';
+
+import 'add_company_dialog.dart';
 
 class MenuPage extends StatefulWidget{
   @override
@@ -35,34 +38,6 @@ class _MenuPageState extends State<MenuPage>{
            })
         ]),
         companyLists(),
-        Row(children:[
-          statusChip(statusName:"検討中",bgColor: Colors.green),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"インターン選考中",bgColor: DEEP_BLUE),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"インターン参加",bgColor: DEEP_BLUE),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"本選考中",bgColor: Colors.redAccent),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"🎉内定",bgColor: Colors.redAccent),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"🙏落選",bgColor: Colors.grey),
-          const Spacer()
-        ]),
-        Row(children:[
-          statusChip(statusName:"その他",bgColor: Colors.grey),
-          const Spacer()
-        ]),
       ])
     );
   }
@@ -74,7 +49,15 @@ Widget companyLists() {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(child: CircularProgressIndicator(color: Colors.blue));
       } else if (snapshot.hasData) {
-        return watchingList(snapshot.data!);
+        return Column(children:[
+          companyList(snapshot.data!,0),
+          companyList(snapshot.data!,1),
+          companyList(snapshot.data!,2),
+          companyList(snapshot.data!,3),
+          companyList(snapshot.data!,4),
+          companyList(snapshot.data!,5),
+          companyList(snapshot.data!,6),
+        ]);
       } else if (snapshot.hasError) {
         return const Text("エラー！！！");
       } else {
@@ -84,15 +67,83 @@ Widget companyLists() {
   );
 }
 
-  Widget watchingList (List<Map<String,dynamic>> data){
-    return ListView.builder(itemBuilder: (context,index){
-      return Text(data.elementAt(index).toString());
-    },
-    shrinkWrap: true,
-    physics:const NeverScrollableScrollPhysics(),
-    itemCount: data.length,
+  Widget companyList (List<Map<String,dynamic>> data,int index){
+    String stateID = CompanyStateID().indexToCompanyStateID(index);
+    String stateName = CompanyStateID().indexToCompanyStateName(index);
+    Color statusChipColor = Colors.grey;
+    switch (index){
+      case 0: statusChipColor = Colors.green;
+      case 1: statusChipColor = DEEP_BLUE;
+      case 2: statusChipColor = DEEP_BLUE;
+      case 3: statusChipColor = Colors.redAccent;
+      case 4: statusChipColor = Colors.redAccent;
+
+    }
+    return Column(children:[
+      Row(children:[
+        statusChip(statusName:stateName,bgColor: statusChipColor),
+        const Spacer()
+      ]),
+      ListView.builder(itemBuilder: (context,index){
+        if(data.elementAt(index)["state"] == stateID){
+          return companyObject(data.elementAt(index));
+        }else{
+          return Container();
+        }
+      },
+      shrinkWrap: true,
+      physics:const NeverScrollableScrollPhysics(),
+      itemCount: data.length,
+      )
+    ]);
+   }
+  
+  Widget companyObject(Map<String,dynamic> data){
+    return GestureDetector(
+      onTap:(){},
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical:3),
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: Colors.white12,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: []
+        ),
+        child: Row(
+         children:[
+           Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color:Colors.grey,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child:const Icon(Icons.work,size:30,color: Colors.white,)
+          ), 
+          const SizedBox(width:10),
+          Expanded(child:
+            Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children:[
+              Text(data["companyName"],
+                style:const TextStyle(
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.clip,
+                fontSize:20)),
+              Row(children:[
+                GestureDetector(
+                  child:const Icon(Icons.delete,color:Colors.grey),),
+                const SizedBox(width:5),
+                GestureDetector(
+                  onTap: () async{
+                    await showAddCompanyDialog(
+                      context,setState,isEdit:true,companyName:data["companyName"]);
+                  },
+                  child:const Icon(Icons.edit,color:Colors.grey),),
+              ])
+            ])
+          )
+        ]),
+      ),
     );
   }
-
-
 }
